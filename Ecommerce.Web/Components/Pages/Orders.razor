@@ -1,0 +1,37 @@
+﻿@page "/orders"
+@using Ecommerce.Model
+@inject IHttpClientFactory HttpClientFactory
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Customer Name</th>
+            <th scope="col">ProductId</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Order Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Ordersa)
+        {
+            <tr>
+                <th scope="row">@item.CustomerName</th>
+                <td>@item.ProductId</td>
+                <td>@item.Quantity.ToString("F2")</td>
+                <td>@item.OrderDate.ToString("dd.MM.yyyy")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@code {
+    private List<OrderModel> Ordersa { get; set; } = new List<OrderModel>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var http = HttpClientFactory.CreateClient("Order");
+        Ordersa = await http.GetFromJsonAsync<List<OrderModel>>("/api/order");
+        await base.OnInitializedAsync();
+    }
+}

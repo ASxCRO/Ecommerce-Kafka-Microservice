@@ -1,0 +1,45 @@
+﻿@page "/cart/{ProductId:int}"
+@using Ecommerce.Model
+@inject IHttpClientFactory HttpClientFactory
+@inject IJSRuntime jsRuntime
+
+<form>
+    <div class="form-group mb-4">
+        <label>Customer name</label>
+        <input type="text" class="form-control" @bind="Order.CustomerName"/>
+    </div>
+    <div class="form-group mb-4">
+        <label>Product</label>
+        <input type="text" class="form-control" @bind="Product.Name" readonly/>
+    </div>
+    <div class="form-group mb-4">
+        <label>Quantity</label>
+        <input type="text" class="form-control" @bind="Order.Quantity" />
+    </div>
+</form>
+    <button type="button" class="btn btn-primary" @onclick="CreateOrder">Create Order</button>
+
+@code {
+    [Parameter]
+    public int ProductId { get; set; }
+    public OrderModel Order = new OrderModel();
+    public ProductModel Product = new ProductModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var http = HttpClientFactory.CreateClient("Product");
+        Order.ProductId = ProductId;
+        Product = await http.GetFromJsonAsync<ProductModel>($"/api/product/{ProductId}");
+        await base.OnInitializedAsync();
+    }
+
+    public async Task CreateOrder()
+    {
+        var http = HttpClientFactory.CreateClient("Order");
+        var res = await http.PostAsJsonAsync<OrderModel>("/api/order",Order);
+        if(res.IsSuccessStatusCode)
+        {
+            await jsRuntime.InvokeVoidAsync("alert", "Create order success");
+        }
+    }
+}

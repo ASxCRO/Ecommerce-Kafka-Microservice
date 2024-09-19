@@ -1,0 +1,39 @@
+﻿@page "/products"
+@using Ecommerce.Model
+@inject IHttpClientFactory HttpClientFactory
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Name</th>
+            <th scope="col">Price</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">#</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Products)
+        {
+            <tr>
+                <th scope="row">@item.Id</th>
+                <td>@item.Name</td>
+                <td>@item.Price.ToString("F2")</td>
+                <td>@item.Quantity</td>
+                <td><a class="btn btn-primary" href="/cart/@item.Id">Buy</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@code {
+    private List<ProductModel> Products { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var http = HttpClientFactory.CreateClient("Product");
+        Products = await http.GetFromJsonAsync<List<ProductModel>>("/api/product");
+        await base.OnInitializedAsync();
+    }
+}
